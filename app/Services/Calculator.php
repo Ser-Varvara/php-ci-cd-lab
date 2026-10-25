@@ -16,6 +16,6 @@ class Calculator
 
     public function multiply($x, $y)
     {
-    return $x * $y;
+        return $x * $y;
     }
 }
