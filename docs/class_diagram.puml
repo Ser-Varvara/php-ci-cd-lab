@@ -1,0 +1,177 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+hide empty members
+
+package "Models (Eloquent ORM)" {
+
+class User {
+  -id: int
+  -name: String
+  -email: String
+  -password: String
+  -role: String
+  +register(): bool
+  +login(): bool
+  +logout(): void
+  +updateProfile(): bool
+  +getLoans(): List
+}
+
+class Book {
+  -id: int
+  -title: String
+  -isbn: String
+  -publicationYear: int
+  -description: String
+  +getDetails(): String
+  +updateInfo(): bool
+  +getCopies(): List
+  +isAvailable(): bool
+  +search(): List
+}
+
+class Author {
+  -id: int
+  -firstName: String
+  -lastName: String
+  -biography: String
+  -birthDate: Date
+  +getBooks(): List
+  +addBook(): void
+  +removeBook(): void
+  +updateInfo(): bool
+  +getFullName(): String
+}
+
+class Category {
+  -id: int
+  -name: String
+  -description: String
+  -createdAt: Date
+  -updatedAt: Date
+  +getBooks(): List
+  +addBook(): void
+  +removeBook(): void
+  +updateName(): bool
+  +getDetails(): String
+}
+
+class BookCopy {
+  -id: int
+  -bookId: int
+  -inventoryNumber: String
+  -status: String
+  -location: String
+  +markAvailable(): void
+  +markBorrowed(): void
+  +getStatus(): String
+  +updateLocation(): bool
+  +isAvailable(): bool
+}
+
+class Loan {
+  -id: int
+  -userId: int
+  -copyId: int
+  -loanDate: Date
+  -dueDate: Date
+  +createLoan(): bool
+  +returnBook(): bool
+  +isOverdue(): bool
+  +extendLoan(): bool
+  +getDetails(): String
+}
+
+class Reservation {
+  -id: int
+  -userId: int
+  -bookId: int
+  -reservationDate: Date
+  -status: String
+  +createReservation(): bool
+  +cancelReservation(): bool
+  +confirmReservation(): bool
+  +getStatus(): String
+  +isActive(): bool
+}
+
+}
+
+package "Controllers (MVC)" {
+
+class BookController {
+  -bookModel: Book
+  -searchQuery: String
+  -currentPage: int
+  -pageSize: int
+  -sortOrder: String
+  +index(): List
+  +show(id: int): Book
+  +search(query: String): List
+  +store(data: Array): bool
+  +destroy(id: int): bool
+}
+
+class LoanController {
+  -loanModel: Loan
+  -currentUser: User
+  -selectedCopy: BookCopy
+  -loanDate: Date
+  -dueDate: Date
+  +index(): List
+  +show(id: int): Loan
+  +store(data: Array): bool
+  +returnBook(id: int): bool
+  +checkOverdue(): List
+}
+
+class ReservationController {
+  -reservationModel: Reservation
+  -currentUser: User
+  -selectedBook: Book
+  -reservationDate: Date
+  -status: String
+  +index(): List
+  +show(id: int): Reservation
+  +store(data: Array): bool
+  +cancel(id: int): bool
+  +checkAvailability(bookId: int): bool
+}
+
+}
+
+User "1" -- "0..*" Loan : borrows
+User "1" -- "0..*" Reservation : makes
+
+Author "1" -- "0..*" Book : writes
+Category "1" o-- "0..*" Book : groups
+
+Book "1" *-- "0..*" BookCopy : contains
+BookCopy "1" -- "0..*" Loan : history
+Book "1" -- "0..*" Reservation : reserved
+
+BookController ..> Book : uses
+LoanController ..> Loan : uses
+ReservationController ..> Reservation : uses
+
+BookController --|> Controller
+LoanController --|> Controller
+ReservationController --|> Controller
+
+class Controller {
+  -request: Request
+  -response: Response
+  -middleware: Array
+  -routeName: String
+  -statusCode: int
+  +handle(): Response
+  +validate(): bool
+  +authorize(): bool
+  +redirect(): Response
+  +render(): Response
+}
+
+@enduml
