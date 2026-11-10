@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Читач" as Reader
+actor "Бібліотекар" as Librarian
+actor "Адміністратор" as Admin
+
+rectangle "Автоматизована бібліотечна система" {
+
+  usecase "Переглянути каталог" as Catalog
+  usecase "Знайти книгу" as Search
+  usecase "Знайти за назвою" as SearchTitle
+  usecase "Знайти за автором" as SearchAuthor
+  usecase "Забронювати книгу" as Reserve
+  usecase "Перевірити доступність" as Check
+  usecase "Переглянути позики" as History
+
+  usecase "Видати книгу" as Issue
+  usecase "Повернути книгу" as Return
+  usecase "Керувати каталогом" as Manage
+  usecase "Перевірити заборгованість" as Debt
+
+  usecase "Керувати користувачами" as Users
+  usecase "Призначити роль" as Roles
+  usecase "Переглянути звіти" as Reports
+}
+
+Reader -- Catalog
+Reader -- SearchTitle
+Reader -- SearchAuthor
+Reader -- Reserve
+Reader -- History
+
+Librarian -- Issue
+Librarian -- Return
+Librarian -- Manage
+
+Admin -- Users
+Admin -- Roles
+Admin -- Reports
+
+SearchTitle --|> Search
+SearchAuthor --|> Search
+
+Reserve ..> Check : <<include>>
+Issue ..> Check : <<include>>
+Issue ..> Debt : <<include>>
+
+Roles ..> Users : <<extend>>
+
+@enduml
