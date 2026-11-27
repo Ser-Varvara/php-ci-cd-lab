@@ -1,11 +1,10 @@
-
-name: PHP CI Application
+name: PHP CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
   pull_request:
-    branches: ["main"]
+    branches: [main]
 
 jobs:
   build:
@@ -14,21 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: mbstring, sqlite3, pdo_sqlite
+
+      - name: Copy .env file
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
       - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Generate Application Key
+        run: php artisan key:generate
 
       - name: Lint code with Pint
         run: ./vendor/bin/pint --test
 
-      - name: Run unit tests
-        run: ./vendor/bin/phpunit tests/Unit
-
-      - name: Demonstrate GitHub Secrets
-        env:
-          MY_SECRET: ${{ secrets.MY_SUPER_SECRET_KEY }}
-        run: echo "Secret value is $MY_SECRET"
+      - name: Run Application Tests
+        run: php artisan test
